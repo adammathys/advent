@@ -19,7 +19,7 @@ class SolutionTest < Minitest::Test
   end
 
   def test_easy
-    assert Solution.second(1) == 1
+    assert Solution.second(2) == 4
   end
 
   def test_medium
