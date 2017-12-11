@@ -3,49 +3,53 @@ class Solution
     @directions = input.strip.split(",")
   end
 
-  def steps
-    optimized = optimize(@directions)
+  def walk(farthest: false)
+    origin = [0, 0, 0]
+    current = origin.dup
+    max = 0
 
-    loop do
-      new = optimize(optimized)
-      break if optimized.size == new.size
-      optimized = new
+    @directions.each do |direction|
+      current = move(current, direction)
+      steps = distance(origin, current)
+      max = steps if max < steps
     end
 
-    optimized.size
+    if farthest
+      max
+    else
+      distance(origin, current)
+    end
   end
 
   private
 
-  def optimize(directions)
-    optimized = directions.dup
-    optimize_zigzag(optimized, "nw", "s", "sw")
-    optimize_zigzag(optimized, "ne", "s", "se")
-    optimize_zigzag(optimized, "sw", "n", "nw")
-    optimize_zigzag(optimized, "sw", "n", "ne")
-
-    remove_backtracks(optimized, "ne", "sw")
-    remove_backtracks(optimized, "nw", "se")
-    remove_backtracks(optimized, "n", "s")
-
-    optimize_zigzag(optimized, "sw", "se", "s")
-    optimize_zigzag(optimized, "nw", "ne", "n")
-
-    optimized
+  def move(origin, direction)
+    case direction
+    when "n"
+      origin[1] += 1
+      origin[2] -= 1
+    when "ne"
+      origin[0] += 1
+      origin[2] -= 1
+    when "se"
+      origin[0] += 1
+      origin[1] -= 1
+    when "s"
+      origin[1] -= 1
+      origin[2] += 1
+    when "sw"
+      origin[0] -= 1
+      origin[2] += 1
+    when "nw"
+      origin[0] -= 1
+      origin[1] += 1
+    end
+    origin
   end
 
-  def remove_backtracks(directions, a, b)
-    [directions.count(a), directions.count(b)].min.times do
-      directions.delete_at(directions.index(a))
-      directions.delete_at(directions.index(b))
-    end
-  end
-
-  def optimize_zigzag(directions, a, b, c)
-    [directions.count(a), directions.count(b)].min.times do
-      directions.delete_at(directions.index(a))
-      directions.delete_at(directions.index(b))
-      directions.push(c)
-    end
+  def distance(origin, current)
+    origin.map.with_index do |v, i|
+      (v - current[i]).abs
+    end.max
   end
 end
