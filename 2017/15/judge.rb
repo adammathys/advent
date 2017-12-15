@@ -1,6 +1,5 @@
 class Judge
-  # 16 ones in binary
-  BIT_MASK = 65_535
+  BIT_MASK = 0xffff
 
   A_FACTOR = 16_807
   B_FACTOR = 48_271
@@ -13,35 +12,27 @@ class Judge
   def loose_matches
     a = enumerator(@a_start, A_FACTOR)
     b = enumerator(@b_start, B_FACTOR)
-    count = 0
-    40_000_000.times do
-      count += 1 if (a.next & BIT_MASK) == (b.next & BIT_MASK)
+    Array.new(40_000_000).sum do
+      (a.next & BIT_MASK) == (b.next & BIT_MASK) ? 1 : 0
     end
-    count
   end
 
   def strict_matches
-    a = enumerator(@a_start, A_FACTOR, strict: 4)
-    b = enumerator(@b_start, B_FACTOR, strict: 8)
-    count = 0
-    5_000_000.times do
-      count += 1 if (a.next & BIT_MASK) == (b.next & BIT_MASK)
+    a = enumerator(@a_start, A_FACTOR, criteria: 3)
+    b = enumerator(@b_start, B_FACTOR, criteria: 7)
+    Array.new(5_000_000).sum do
+      (a.next & BIT_MASK) == (b.next & BIT_MASK) ? 1 : 0
     end
-    count
   end
 
   private
 
-  def enumerator(start, factor, strict: false)
+  def enumerator(start, factor, criteria: 0)
     Enumerator.new do |y|
       x = start
       loop do
         x = (x * factor) % 2147483647
-        if strict
-          y << x if (x % strict == 0)
-        else
-          y << x
-        end
+        y << x if x & criteria == 0
       end
     end
   end
