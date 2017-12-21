@@ -1,18 +1,17 @@
+require "matrix"
+
 class Swarm
   def initialize(input)
     @particles = parse_input(input)
   end
 
   def closest
-    1_000.times { move! }
-    closest_particle
+    500.times { move! }
+    @particles.min_by { |_, p| p[:p].r }.first
   end
 
   def collide
-    1_000.times do
-      move!
-      remove_collisions!
-    end
+    40.times { move!; remove_collisions! }
     @particles.size
   end
 
@@ -20,43 +19,20 @@ class Swarm
 
   def move!
     @particles.each do |_, particle|
-      particle[:v] = add_vectors(particle[:v], particle[:a])
-      particle[:p] = add_vectors(particle[:p], particle[:v])
+      particle[:v] += particle[:a]
+      particle[:p] += particle[:v]
     end
   end
 
   def remove_collisions!
-    groups = @particles.keys.group_by do |key|
-      @particles[key][:p]
-    end
-    bad_keys = groups.select do |_, k|
-      k.size > 1
-    end
-    bad_keys.each do |_, k|
-      k.each { |x| @particles.delete(x) }
-    end
-  end
-
-  def closest_particle
-    @particles.min_by do |_, p|
-      distance(p[:p], [0, 0, 0])
-    end.first
-  end
-
-  def add_vectors(a, b)
-    a.map.with_index { |x, i| x + b[i] }
-  end
-
-  def distance(a, b)
-    a.map.with_index do |x, i|
-      (x - b[i]).abs
-    end.sum
+    @particles = @particles.group_by { |_, p| p[:p] }.
+      select { |_, v| v.size == 1 }.values.flatten(1)
   end
 
   def parse_input(input)
     input.lines.map.with_index do |line, idx|
       metrics = line.split(", ")
-      p, v, a = metrics.map { |m| m[3..-2].split(",").map(&:to_i) }
+      p, v, a = metrics.map { |m| Vector[*m[3..-2].split(",").map(&:to_i)] }
       [idx, { p: p, v: v, a: a }]
     end.to_h
   end
