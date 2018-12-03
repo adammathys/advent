@@ -20,14 +20,8 @@ class Fabric
     @grid = Array.new(@size) { Array.new(@size) { Array.new } }
     @possible_bests = []
     @input.each do |claim|
-      num, position = claim.split("@")
-      start, area = position.split(":")
-      x, y =  start.split(",").map(&:to_i)
-      w, h =  area.split("x").map(&:to_i)
-      num = num.gsub("#", "").to_i
-
+      num, x, y, w, h = parse_claim(claim)
       @possible_bests << num
-
       x.upto(x + w - 1) do |i|
         y.upto(y + h - 1) do |j|
           @grid[i][j] << num
@@ -35,5 +29,9 @@ class Fabric
         end
       end
     end
+  end
+
+  def parse_claim(claim)
+    /#(\d+) @ (\d+),(\d+): (\d+)x(\d+)/.match(claim).to_a[1..-1].map(&:to_i)
   end
 end
