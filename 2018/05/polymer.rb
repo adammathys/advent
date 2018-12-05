@@ -5,17 +5,14 @@ class Polymer
 
   def optimum
     reductions = ('a'..'z').flat_map do |char|
-      reduced = @base.chars
-      reduced.delete(char)
-      reduced.delete(char.upcase)
-      react(reduced)
+      react(@base.gsub(/#{char}/i, ''))
     end
     reductions.min_by(&:length)
   end
 
-  def react(base = @base.chars)
+  def react(base = @base)
     index = 0
-    reacted = base
+    reacted = base.chars
 
     until index >= @base.length
       a = reacted[index]
