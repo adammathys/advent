@@ -4,21 +4,20 @@ class Polymer
   end
 
   def optimum
-    reductions = ('a'..'z').flat_map do |char|
+    ('a'..'z').flat_map do |char|
       react(@base.gsub(/#{char}/i, ''))
-    end
-    reductions.min_by(&:length)
+    end.min_by(&:length)
   end
 
   def react(base = @base)
     index = 0
     reacted = base.chars
 
-    until index >= @base.length
+    until index >= reacted.length
       a = reacted[index]
       b = reacted[index + 1]
 
-      if a != b && (a.upcase == b || a.downcase == b)
+      if a != b && a.casecmp?(b)
         2.times { reacted.delete_at(index) }
         index -= 1
       else
