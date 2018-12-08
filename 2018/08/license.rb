@@ -17,7 +17,7 @@ class License
   end
 
   def initialize(input)
-    @tree = parse(input.split(' ').map(&:to_i)).first
+    @tree = parse(input.split(' ').map(&:to_i))
   end
 
   def metasum
@@ -30,23 +30,11 @@ class License
 
   private
 
-  def parse(input, index = 0)
-    children = input[index]
-    metadata = input[index + 1]
-    index += 2
-
-    node = Node.new([], [])
-
-    children.times do
-      child, index = parse(input, index)
-      node.children << child
-    end
-
-    metadata.times do
-      node.metadata << input[index]
-      index += 1
-    end
-
-    [node, index]
+  def parse(input)
+    children, metadata = input.shift(2)
+    Node.new(
+      children.times.map { parse(input) },
+      input.shift(metadata)
+    )
   end
 end
