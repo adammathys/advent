@@ -8,11 +8,8 @@ class Password
   end
 
   def valid?
-    password.squeeze.length != MIN_LENGTH &&
-      password.split('').each_cons(2).all? { |a, b| a <= b }
-  end
-
-  def super_valid?
-    valid? && password.split('').chunk{ |x| x }.any?{ |x| x[1].length == 2 }
+    chunked = password.chars.chunk{ |x| x }
+    chunked.each_cons(2).all? { |a, b| a[0] < b[0] } &&
+      chunked.any? { |x| x[1].length == 2 }
   end
 end
