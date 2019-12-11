@@ -23,9 +23,11 @@ class Robot
     current = Vector[0,0]
     grid[current] = 1
 
-    until intcode.halted?
+    loop do
       color = intcode.run(grid.fetch(current, 0))
       turn = intcode.run
+
+      break if intcode.halted?
 
       grid[current] = color
       direction =
