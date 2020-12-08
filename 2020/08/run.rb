@@ -4,4 +4,4 @@ input = File.readlines("input.txt")
 gameboy = Gameboy.new(input.map{ |i| i.split(' ') })
 
 gameboy.run(true)
-puts "Result: #{gameboy.accumulator}"
+puts "Result: #{gameboy.acc}"

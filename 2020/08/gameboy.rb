@@ -1,62 +1,55 @@
 class Gameboy
-  attr_accessor :index, :accumulator
+  attr_accessor :idx, :acc
 
-  def initialize(instructions, index = 0, accumulator = 0, seen = Set.new)
+  def initialize(instructions, idx = 0, acc = 0, seen = Set.new)
     @instructions = instructions
-    @index = index
-    @accumulator = accumulator
+    @idx = idx
+    @acc = acc
     @seen = seen
   end
 
   def run(autocorrect = false)
-    step(autocorrect) until (@stuck || @success)
+    until (@stuck || @success)
+      step(autocorrect)
+      @success = (idx == @instructions.length)
+      @stuck = !@seen.add?(@idx)
+    end
     @success
   end
 
   private
 
   def step(autocorrect)
-    instruction, value = @instructions[index]
-
+    instruction, value = @instructions[idx]
     case instruction
     when "acc"
-      @accumulator += value.to_i
-      @index += 1
+      @acc += value.to_i
+      @idx += 1
     when "jmp"
       if autocorrect
-        attempt_swap("nop")
+        attempt_swap(["nop", value])
       else
-        @index += value.to_i
+        @idx += value.to_i
       end
     when "nop"
       if autocorrect
-        attempt_swap("jmp")
+        attempt_swap(["jmp", value])
       else
-        @index += 1
+        @idx += 1
       end
     end
-
-    @success = (index == @instructions.length)
-    @stuck = !@seen.add?(@index)
-    @accumulator
   end
 
   def attempt_swap(replacement)
-    new_instructions = @instructions.dup
-    instruction, value = new_instructions[index]
-    new_instructions[index] = [replacement, value]
+    instructions = @instructions.dup
+    instructions[idx] = replacement
 
-    other = Gameboy.new(new_instructions, index, accumulator, @seen.dup)
+    other = Gameboy.new(instructions, idx, acc, @seen.dup)
     if other.run
-      @index = other.index
-      @accumulator = other.accumulator
+      @idx = other.idx
+      @acc = other.acc
     else
-      case instruction
-      when "jmp"
-        @index += value.to_i
-      when "nop"
-        @index += 1
-      end
+      step(false)
     end
   end
 end
