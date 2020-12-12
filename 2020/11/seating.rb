@@ -15,33 +15,25 @@ class Seating
       break if next_rows == @rows
       @rows = next_rows
     end
-
-    @rows.sum { |row| row.count { |s| s == OCCUPIED } }
+    @rows.flatten.count(OCCUPIED)
   end
 
   private
 
   def step(ignore_floor)
     required = ignore_floor ? 5 : 4
-    new_rows = []
+    @rows.map.with_index do |row, y|
+      row.map.with_index do |cell, x|
+        next FLOOR if cell == FLOOR
 
-    @rows.each_with_index do |row, y|
-      new_rows << []
-      row.each_with_index do |spot, x|
-        case spot
-        when EMPTY
-          free = neighbours(x, y, ignore_floor).all? { |n| n == EMPTY || n == FLOOR }
-          new_rows[y][x] = free ? OCCUPIED : EMPTY
-        when OCCUPIED
-          occupied = neighbours(x, y, ignore_floor).count { |n| n == OCCUPIED }
-          new_rows[y][x] = (occupied >= required) ? EMPTY : OCCUPIED
-        when FLOOR
-          new_rows[y][x] = FLOOR
-        end
+        occupied = neighbours(x, y, ignore_floor).count { |n| n == OCCUPIED }
+
+        next OCCUPIED if occupied == 0
+        next EMPTY if occupied >= required
+
+        cell
       end
     end
-
-    new_rows
   end
 
   def neighbours(x, y, ignore_floor)
