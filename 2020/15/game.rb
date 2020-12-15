@@ -1,29 +1,19 @@
-require "pry"
-
 class Game
   def initialize(start)
-    @seen = Array.new
-    @last_index = Hash.new { |h,k| h[k] = [] }
-
-    start.each_with_index do |s,i|
-      @seen[i] = s
-      @last_index[s].push(i)
-    end
+    @start = start
   end
 
   def spoken(index)
-    (0..index).each do |i|
-      next if @seen[i]
+    last_index = Array.new(index)
+    @start.each_with_index { |s, i| last_index[s] = i + 1 }
 
-      prev = @seen[i-1]
-      prev_idx = @last_index[prev]
+    prev = @start.last
 
-      v = prev_idx.length <= 1 ? 0 : (i - prev_idx.shift - 1)
-
-      @last_index[v].push(i)
-      @seen[i] = v
+    (@start.length..index).each do |i|
+      prev_idx, last_index[prev] = last_index[prev], i
+      prev = prev_idx ? (i - prev_idx) : 0
     end
 
-    @seen[index]
+    prev
   end
 end
