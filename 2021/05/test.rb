@@ -1,0 +1,28 @@
+require "minitest/autorun"
+require_relative "vents"
+
+class VentsTest < Minitest::Test
+  def setup
+    input = [
+      "0,9 -> 5,9",
+      "8,0 -> 0,8",
+      "9,4 -> 3,4",
+      "2,2 -> 2,1",
+      "7,0 -> 7,4",
+      "6,4 -> 2,0",
+      "0,9 -> 2,9",
+      "3,4 -> 1,4",
+      "0,0 -> 8,8",
+      "5,5 -> 8,2",
+    ]
+    @vents = Vents.new(input)
+  end
+
+  def test_overlaps
+    assert_equal 5, @vents.overlaps
+  end
+
+  def test_overlaps_with_diagonals
+    assert_equal 12, @vents.overlaps(true)
+  end
+end
